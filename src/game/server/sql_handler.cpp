@@ -15,7 +15,7 @@ int get_proc_count()
 void SqlHandler::get_player_stats_handler(void *ev)
 {
 	auto data = static_cast<GetPlayerStatsData *>(ev);
-	auto database = CreateMysqlConnection("ddnet", "record", "admin", "1234", "localhost", 3306, true);
+	auto database = CreateMysqlConnection(g_Config.m_SqlDatabase, g_Config.m_SqlPrefix, g_Config.m_SqlUser, g_Config.m_SqlPass, g_Config.m_SqlHost, g_Config.m_SqlPort, g_Config.m_SqlSetup);
 	char aError[256] = "error message not initialized";
 	if(database->Connect(aError, sizeof(aError)))
 	{
@@ -59,7 +59,7 @@ void SqlHandler::get_player_stats_handler(void *ev)
 void SqlHandler::set_stats_handler(void *ev)
 {
 	auto data = static_cast<SetStatsData *>(ev);
-	auto database = CreateMysqlConnection("ddnet", "record", "ddnet", "thebestpassword", "localhost", 3306, true);
+	auto database = CreateMysqlConnection(g_Config.m_SqlDatabase, g_Config.m_SqlPrefix, g_Config.m_SqlUser, g_Config.m_SqlPass, g_Config.m_SqlHost, g_Config.m_SqlPort, g_Config.m_SqlSetup);
 	char aError[256] = "error message not initialized";
 	if(database->Connect(aError, sizeof(aError)))
 	{
@@ -77,7 +77,7 @@ void SqlHandler::set_stats_handler(void *ev)
 void SqlHandler::set_server_stats_handler(void *ev)
 {
 	auto data = static_cast<SetServerStatsData *>(ev);
-	auto database = CreateMysqlConnection("ddnet", "record", "ddnet", "thebestpassword", "localhost", 3306, true);
+	auto database = CreateMysqlConnection(g_Config.m_SqlDatabase, g_Config.m_SqlPrefix, g_Config.m_SqlUser, g_Config.m_SqlPass, g_Config.m_SqlHost, g_Config.m_SqlPort, g_Config.m_SqlSetup);
 	char aError[256] = "error message not initialized";
 	if(database->Connect(aError, sizeof(aError)))
 	{
@@ -100,9 +100,9 @@ SqlHandler::SqlHandler() :
 	m_thread_pool.set_pause(false);
 	m_should_stop.store(true);
 	// add handler for eventid
-//	m_queue.appendListener(EventType::CreatePlayer, make_callback(&SqlHandler::get_player_stats_handler));
-//	m_queue.appendListener(EventType::SetStats, make_callback(&SqlHandler::set_stats_handler));
-//	m_queue.appendListener(EventType::SetServerStats, make_callback(&SqlHandler::set_server_stats_handler));
+	m_queue.appendListener(EventType::CreatePlayer, make_callback(&SqlHandler::get_player_stats_handler));
+	m_queue.appendListener(EventType::SetStats, make_callback(&SqlHandler::set_stats_handler));
+	m_queue.appendListener(EventType::SetServerStats, make_callback(&SqlHandler::set_server_stats_handler));
 }
 
 void SqlHandler::start()

@@ -6,7 +6,7 @@ void IDbConnection::FormatCreateUsers(char *aBuf, unsigned int BufferSize)
 {
 	str_format(aBuf, BufferSize,
 		"CREATE TABLE IF NOT EXISTS `stats` ("
-			"`name` varchar(255) PRIMARY KEY,"
+			"`name` nvarchar(255) PRIMARY KEY,"
 			"`kills` int,"
 			"`deaths` int,"
 			"`touches` int,"
@@ -24,7 +24,7 @@ void IDbConnection::FormatCreateServer(char *aBuf, unsigned int BufferSize)
 {
 	str_format(aBuf, BufferSize,
 		"CREATE TABLE IF NOT EXISTS `stats_server` ("
-			"`server_name` varchar(255) PRIMARY KEY,"
+			"`server_name` nvarchar(255) PRIMARY KEY,"
 			"`red_score` int,"
 			"`blue_score` int"
 		");"

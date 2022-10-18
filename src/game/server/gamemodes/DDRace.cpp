@@ -307,11 +307,9 @@ void CGameControllerDDRace::Tick()
 							str_format(aBuf, sizeof(aBuf), "The %s flag was captured by '%s'", fi ? "blue" : "red", Server()->ClientName(F->m_pCarryingCharacter->GetPlayer()->GetCID()));
 						}
 
-						auto capture_time_millis = CaptureTime*1000;
+						int capture_time_millis = CaptureTime*1000;
 
-						if (F->m_pCarryingCharacter->GetPlayer()->m_FastestCapture < 0) {
-							F->m_pCarryingCharacter->GetPlayer()->m_FastestCapture = capture_time_millis;
-						} else if(F->m_pCarryingCharacter->GetPlayer()->m_FastestCapture > capture_time_millis) {
+						if(capture_time_millis < F->m_pCarryingCharacter->GetPlayer()->m_FastestCapture || F->m_pCarryingCharacter->GetPlayer()->m_FastestCapture <= 0) {
 							F->m_pCarryingCharacter->GetPlayer()->m_FastestCapture = capture_time_millis;
 						}
 						F->m_pCarryingCharacter->GetPlayer()->m_Captures++;

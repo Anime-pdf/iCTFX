@@ -146,7 +146,7 @@ void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer)
 	pPlayer->m_Deaths = 0;
 	pPlayer->m_Touches = 0;
 	pPlayer->m_Captures = 0;
-	pPlayer->m_FastestCapture = -1;
+	pPlayer->m_FastestCapture = 0;
 	pPlayer->m_Shots = 0;
 	pPlayer->m_Wallshots = 0;
 	pPlayer->m_WallshotKills = 0;
@@ -165,7 +165,7 @@ void CGameControllerDDRace::OnPlayerNameChange(class CPlayer *pPlayer)
 	pPlayer->m_Deaths = 0;
 	pPlayer->m_Touches = 0;
 	pPlayer->m_Captures = 0;
-	pPlayer->m_FastestCapture = -1;
+	pPlayer->m_FastestCapture = 0;
 	pPlayer->m_Shots = 0;
 	pPlayer->m_Wallshots = 0;
 	pPlayer->m_WallshotKills = 0;

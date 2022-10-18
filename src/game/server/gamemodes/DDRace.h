@@ -17,8 +17,6 @@ public:
 	CGameControllerDDRace(class CGameContext *pGameServer);
 	~CGameControllerDDRace();
 
-	void UpdateServerStats();
-
 	void OnCharacterSpawn(class CCharacter *pChr) override;
 	int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int WeaponID) override;
 	void Snap(int SnappingClient);

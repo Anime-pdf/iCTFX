@@ -75,26 +75,6 @@ void SqlHandler::set_stats_handler(void *ev)
 	database->Disconnect();
 }
 
-void SqlHandler::set_server_stats_handler(void *ev)
-{
-	auto data = static_cast<SetServerStatsData *>(ev);
-	auto database = CreateMysqlConnection(g_Config.m_SqlDatabase, g_Config.m_SqlPrefix, g_Config.m_SqlUser, g_Config.m_SqlPass, g_Config.m_SqlHost, g_Config.m_SqlPort, g_Config.m_SqlSetup);
-	char aError[256] = "error message not initialized";
-	if(database->Connect(aError, sizeof(aError)))
-	{
-		dbg_msg("sql", "failed connecting to db: %s", aError);
-		return;
-	}
-
-	auto stats = data->stats;
-	char error[4096] = {};
-	if(database->AddServerStats("save_server", stats, error, sizeof(error)))
-	{
-		dbg_msg("sql", "failed connecting to db: %s", error);
-	}
-	database->Disconnect();
-}
-
 SqlHandler::SqlHandler() :
 	m_thread_pool(get_proc_count())
 {
@@ -103,7 +83,6 @@ SqlHandler::SqlHandler() :
 	// add handler for eventid
 	m_queue.appendListener(EventType::CreatePlayer, make_callback(&SqlHandler::get_player_stats_handler));
 	m_queue.appendListener(EventType::SetStats, make_callback(&SqlHandler::set_stats_handler));
-	m_queue.appendListener(EventType::SetServerStats, make_callback(&SqlHandler::set_server_stats_handler));
 }
 
 void SqlHandler::start()
@@ -139,13 +118,6 @@ void SqlHandler::get_player_stats(CPlayer *pPlayer, const std::string player_nam
 	data->pPlayer = pPlayer;
 	data->player_name = player_name;
 	m_queue.enqueue(EventType::CreatePlayer, data);
-}
-
-void SqlHandler::set_server_stats(const ServerStats stats)
-{
-	SetServerStatsData *data = new SetServerStatsData();
-	data->stats = stats;
-	m_queue.enqueue(EventType::SetServerStats, data);
 }
 
 void SqlHandler::threadloop()

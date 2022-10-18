@@ -19,14 +19,3 @@ void IDbConnection::FormatCreateUsers(char *aBuf, unsigned int BufferSize)
 		");"
 		);
 }
-
-void IDbConnection::FormatCreateServer(char *aBuf, unsigned int BufferSize)
-{
-	str_format(aBuf, BufferSize,
-		"CREATE TABLE IF NOT EXISTS `stats_server` ("
-			"`server_name` nvarchar(255) PRIMARY KEY not null,"
-			"`red_score` int null default 0 check(`red_score` >= 0),"
-			"`blue_score` int null default 0 check(`blue_score` >= 0)"
-		");"
-		);
-}

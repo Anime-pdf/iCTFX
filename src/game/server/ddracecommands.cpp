@@ -806,47 +806,31 @@ void CGameContext::ConDumpAntibot(IConsole::IResult *pResult, void *pUserData)
 
 void CGameContext::ConStop(IConsole::IResult *pResult, void *pUserData)
 {
-	if(!g_Config.m_SvSaveServer) {
-		CGameContext *pSelf = (CGameContext *)pUserData;
-		pSelf->m_World.m_Paused = true;
-			pSelf->SendChat(-1, CHAT_ALL, "Server paused");
-	}
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	pSelf->m_World.m_Paused = true;
+		pSelf->SendChat(-1, CHAT_ALL, "Server paused");
 }
 
 void CGameContext::ConGo(IConsole::IResult *pResult, void *pUserData)
 {
-	if(!g_Config.m_SvSaveServer) {
-		CGameContext *pSelf = (CGameContext *)pUserData;
-		pSelf->m_pController->m_FakeWarmup = pSelf->Server()->TickSpeed() * g_Config.m_SvGoTime;
-		pSelf->SendChat(-1, CHAT_ALL, "Server continuing");
-	}
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	pSelf->m_pController->m_FakeWarmup = pSelf->Server()->TickSpeed() * g_Config.m_SvGoTime;
+	pSelf->SendChat(-1, CHAT_ALL, "Server continuing");
 }
 
 
 void CGameContext::ConXonX(IConsole::IResult *pResult, void *pUserData)
 {
-	if (!g_Config.m_SvSaveServer) {
-		CGameContext *pSelf = (CGameContext *)pUserData;
-		int Mode = pResult->GetInteger(0);
-		g_Config.m_SvSpectatorSlots = g_Config.m_SvMaxClients - 2*Mode;
-		pSelf->m_pController->DoWarmup(g_Config.m_SvWarTime);
-		char aBuf[128];
-
-		str_format(aBuf, sizeof(aBuf), "Upcoming %don%d! Please stay on spectator", Mode, Mode);
-		pSelf->SendBroadcast(aBuf, -1);
-
-		str_format(aBuf, sizeof(aBuf), "The %don%d will start in %d seconds!", Mode, Mode, g_Config.m_SvWarTime);
-		pSelf->SendChat(-1, CHAT_ALL, aBuf);
-	}
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	int Mode = pResult->GetInteger(0);
+	pSelf->VoteXonX(Mode);
 }
 
 void CGameContext::ConReset(IConsole::IResult *pResult, void *pUserData)
 {
-	if(!g_Config.m_SvSaveServer) {
-		CGameContext *pSelf = (CGameContext *)pUserData;
-		g_Config.m_SvSpectatorSlots = 0;
-		pSelf->SendChat(-1, CHAT_ALL, "Reset spectator slots");
-	}
+	CGameContext *pSelf = (CGameContext *)pUserData;
+	g_Config.m_SvSpectatorSlots = 0;
+	pSelf->SendChat(-1, CHAT_ALL, "Reset spectator slots");
 }
 
 void CGameContext::ConSwapTeams(IConsole::IResult *pResult, void *pUserData)

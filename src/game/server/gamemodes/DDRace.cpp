@@ -29,50 +29,13 @@ CGameControllerDDRace::CGameControllerDDRace(class CGameContext *pGameServer) :
 	m_apFlags[1] = 0;
 	m_aTeamscore[TEAM_RED] = 0;
 	m_aTeamscore[TEAM_BLUE] = 0;
-	
-	if(g_Config.m_SvSaveServer) {
-		auto database = CreateMysqlConnection(g_Config.m_SqlDatabase, g_Config.m_SqlPrefix, g_Config.m_SqlUser, g_Config.m_SqlPass, g_Config.m_SqlHost, g_Config.m_SqlPort, g_Config.m_SqlSetup);
-		if(database != nullptr)
-		{
-			char aError[256] = "error message not initialized";
-			if(database->Connect(aError, sizeof(aError)))
-			{
-				dbg_msg("sql", "failed connecting to db: %s", aError);
-				return;
-			}
-			//save score
-			ServerStats server_stats{};
-			char error[4096] = {};
-			if (!database->GetServerStats("save_server", server_stats, error, sizeof(error))) {
-				m_aTeamscore[TEAM_RED] = server_stats.score_red;
-				m_aTeamscore[TEAM_BLUE] = server_stats.score_blue;
-			} else {
-				dbg_msg("sql", "failed to read stats: %s", error);
-			}
-			database->Disconnect();
-		}
-		sql_handler->start();
-	}
+
+	sql_handler->start();
 }
 
 CGameControllerDDRace::~CGameControllerDDRace() {
-	if (g_Config.m_SvSaveServer) {
-		sql_handler->stop();
-	}
+	sql_handler->stop();
 };
-
-void CGameControllerDDRace::UpdateServerStats() {
-	if(g_Config.m_SvSaveServer)
-	{
-		//save score
-		ServerStats server_stats{
-			m_aTeamscore[TEAM_RED],
-			m_aTeamscore[TEAM_BLUE]
-		};
-
-		sql_handler->set_server_stats(server_stats);
-	}
-}
 
 void CGameControllerDDRace::OnCharacterSpawn(CCharacter *pChr)
 {
@@ -152,10 +115,7 @@ void CGameControllerDDRace::OnPlayerConnect(CPlayer *pPlayer)
 	pPlayer->m_WallshotKills = 0;
 	pPlayer->m_Suicides = 0;
 
-	if(g_Config.m_SvSaveServer)
-	{
-		sql_handler->get_player_stats(pPlayer, Server()->ClientName(pPlayer->GetCID()));
-	}
+	sql_handler->get_player_stats(pPlayer, Server()->ClientName(pPlayer->GetCID()));
 }
 
 void CGameControllerDDRace::OnPlayerNameChange(class CPlayer *pPlayer)
@@ -171,10 +131,7 @@ void CGameControllerDDRace::OnPlayerNameChange(class CPlayer *pPlayer)
 	pPlayer->m_WallshotKills = 0;
 	pPlayer->m_Suicides = 0;
 
-	if(g_Config.m_SvSaveServer)
-	{
-		sql_handler->get_player_stats(pPlayer, Server()->ClientName(pPlayer->GetCID()));
-	}
+	sql_handler->get_player_stats(pPlayer, Server()->ClientName(pPlayer->GetCID()));
 }
 
 void CGameControllerDDRace::OnPlayerDisconnect(CPlayer *pPlayer, const char *pReason)
@@ -190,22 +147,19 @@ void CGameControllerDDRace::OnPlayerDisconnect(CPlayer *pPlayer, const char *pRe
 	if(g_Config.m_SvTeam != SV_TEAM_FORCED_SOLO)
 		m_Teams.SetForceCharacterTeam(ClientID, TEAM_FLOCK);
 	
-	if(g_Config.m_SvSaveServer)
-	{
-		//save score
-		Stats stats;
-		stats.kills = pPlayer->m_Kills;
-		stats.deaths = pPlayer->m_Deaths;
-		stats.touches = pPlayer->m_Touches;
-		stats.captures = pPlayer->m_Captures;
-		stats.fastest_capture = pPlayer->m_FastestCapture;
-		stats.shots = pPlayer->m_Shots;
-		stats.wallshots = pPlayer->m_Wallshots;
-		stats.wallshot_kills = pPlayer->m_WallshotKills;
-		stats.suicides = pPlayer->m_Suicides;
+	//save score
+	Stats stats;
+	stats.kills = pPlayer->m_Kills;
+	stats.deaths = pPlayer->m_Deaths;
+	stats.touches = pPlayer->m_Touches;
+	stats.captures = pPlayer->m_Captures;
+	stats.fastest_capture = pPlayer->m_FastestCapture;
+	stats.shots = pPlayer->m_Shots;
+	stats.wallshots = pPlayer->m_Wallshots;
+	stats.wallshot_kills = pPlayer->m_WallshotKills;
+	stats.suicides = pPlayer->m_Suicides;
 
-		sql_handler->set_stats(Server()->ClientName(pPlayer->GetCID()), stats);
-	}
+	sql_handler->set_stats(Server()->ClientName(pPlayer->GetCID()), stats);
 }
 
 void CGameControllerDDRace::Snap(int SnappingClient)
@@ -285,7 +239,6 @@ void CGameControllerDDRace::Tick()
 					{
 						// CAPTURE! \o/
 						m_aTeamscore[fi^1] += 100;
-						UpdateServerStats();
 						F->m_pCarryingCharacter->GetPlayer()->m_Score += 5;
 						int playerID = F->m_pCarryingCharacter->GetPlayer()->GetCID();
 						
@@ -373,7 +326,6 @@ void CGameControllerDDRace::Tick()
 						if(F->m_AtStand)
 						{
 							m_aTeamscore[fi^1]++;
-							UpdateServerStats();
 							F->m_GrabTick = Server()->Tick();
 							for(int i = 0; i < MAX_CLIENTS; i++)
 							{
@@ -439,7 +391,7 @@ void CGameControllerDDRace::Tick()
 			}
 		}
 	
-	if(m_GameOverTick == -1 && !m_Warmup && !g_Config.m_SvSaveServer)
+	if(m_GameOverTick == -1 && !m_Warmup)
 	{
 		// check score win condition
 		if(!idm)

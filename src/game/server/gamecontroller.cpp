@@ -484,23 +484,18 @@ void IGameController::StartRound()
 		if(pPlayer)
 		{
 			const int team = pPlayer->GetTeam();
-			if(!g_Config.m_SvSaveServer)
-			{
-				pPlayer->m_Score = 0;
-				pPlayer->m_Deaths = 0;
-				pPlayer->m_Kills = 0;
-				pPlayer->m_Captures = 0;
-				pPlayer->m_FastestCapture = 0;
-				pPlayer->m_Suicides = 0;
-				pPlayer->m_Touches = 0;
-			}
+			pPlayer->m_Score = 0;
+			pPlayer->m_Deaths = 0;
+			pPlayer->m_Kills = 0;
+			pPlayer->m_Captures = 0;
+			pPlayer->m_FastestCapture = 0;
+			pPlayer->m_Suicides = 0;
+			pPlayer->m_Touches = 0;
 		}
 	}
 
-	if(!g_Config.m_SvSaveServer) {
-		m_aTeamscore[TEAM_RED] =  0;
-		m_aTeamscore[TEAM_BLUE] = 0;
-	}
+	m_aTeamscore[TEAM_RED] =  0;
+	m_aTeamscore[TEAM_BLUE] = 0;
 }
 
 void IGameController::ChangeMap(const char *pToMap)
@@ -772,25 +767,13 @@ void IGameController::Snap(int SnappingClient)
 		return;
 	
 	pGameInfoEx->m_Flags =
-		!GAMEINFOFLAG_TIMESCORE |
-		!GAMEINFOFLAG_GAMETYPE_RACE |
-		!GAMEINFOFLAG_GAMETYPE_DDRACE |
-		!GAMEINFOFLAG_GAMETYPE_DDNET |
 		GAMEINFOFLAG_UNLIMITED_AMMO |
-		!GAMEINFOFLAG_RACE_RECORD_MESSAGE |
 		GAMEINFOFLAG_ALLOW_EYE_WHEEL |
 		GAMEINFOFLAG_ALLOW_HOOK_COLL |
-		!GAMEINFOFLAG_ALLOW_ZOOM |
-		!GAMEINFOFLAG_BUG_DDRACE_GHOST |
 		GAMEINFOFLAG_BUG_DDRACE_INPUT |
-		!GAMEINFOFLAG_PREDICT_DDRACE |
-		!GAMEINFOFLAG_PREDICT_DDRACE_TILES |
-		!GAMEINFOFLAG_ENTITIES_DDNET |
-		!GAMEINFOFLAG_ENTITIES_DDRACE |
-		!GAMEINFOFLAG_ENTITIES_RACE |
-		!GAMEINFOFLAG_RACE|
 		GAMEINFOFLAG_GAMETYPE_VANILLA |
-		GAMEINFOFLAG_PREDICT_VANILLA;
+		GAMEINFOFLAG_PREDICT_VANILLA |
+		GAMEINFOFLAG_ENTITIES_VANILLA;
 	// pGameInfoEx->m_Flags =
 	// 	GAMEINFOFLAG_TIMESCORE |
 	// 	GAMEINFOFLAG_GAMETYPE_RACE |

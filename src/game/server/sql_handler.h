@@ -18,7 +18,6 @@ class SqlHandler
 	{
 		CreatePlayer,
 		SetStats,
-		SetServerStats,
 	};
 
 	struct GetPlayerStatsData
@@ -31,11 +30,6 @@ class SqlHandler
 	{
 		std::string m_player_name;
 		Stats m_stats;
-	};
-
-	struct SetServerStatsData
-	{
-		ServerStats stats;
 	};
 
 public:
@@ -53,15 +47,11 @@ public:
 	/// dispatches the passed data to the corresponding queue
 	void set_stats(const std::string player_name, const Stats stats);
 
-	/// dispatches the passed data to the corresponding queue
-	void set_server_stats(const ServerStats stats);
-
 private:
 	void threadloop();
 
 	static void get_player_stats_handler(void *ev);
 	static void set_stats_handler(void *ev);
-	static void set_server_stats_handler(void *ev);
 
 	std::function<void(void *)> make_callback(std::function<void(void *)> callback)
 	{

@@ -165,6 +165,8 @@ public:
 	void SendVoteStatus(int ClientID, int Total, int Yes, int No);
 	void AbortVoteKickOnDisconnect(int ClientID);
 
+	bool VoteXonX(int x);
+
 	int m_VoteCreator;
 	int m_VoteType;
 	int64_t m_VoteCloseTime;

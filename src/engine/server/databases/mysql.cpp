@@ -100,8 +100,6 @@ public:
 
 	virtual bool AddStats(char const* pPlayer, Stats const& stats, char *pError, int ErrorSize);
 	virtual bool GetStats(char const* pPlayer, Stats& stats, char *pError, int ErrorSize);
-	virtual bool AddServerStats(char const* pServer, ServerStats const& stats, char *pError, int ErrorSize);
-	virtual bool GetServerStats(char const* pServer, ServerStats& stats, char *pError, int ErrorSize);
 
 private:
 	class CStmtDeleter
@@ -308,19 +306,13 @@ bool CMysqlConnection::ConnectImpl()
 	if(m_Setup)
 	{
 		char aCreateUsers[1024];
-		char aCreateServer[1024];
 		FormatCreateUsers(aCreateUsers, sizeof(aCreateUsers));
-		FormatCreateServer(aCreateServer, sizeof(aCreateServer));
 
 		if(PrepareAndExecuteStatement(aCreateUsers))
 		{
 			return true;
 		}
-		if(PrepareAndExecuteStatement(aCreateServer))
-		{
-			return true;
-		}
-		PrepareAndExecuteStatement("INSERT INTO stats_server(server_name, red_score, blue_score) VALUES ('save_server', 0, 0)");
+
 		m_Setup = false;
 	}
 	dbg_msg("mysql", "connection established");
@@ -745,55 +737,6 @@ bool CMysqlConnection::GetStats(char const* pPlayer, Stats& stats, char *pError,
 		stats.wallshots = GetInt(8);
 		stats.wallshot_kills = GetInt(9);
 	}
-	return false;
-}
-
-bool CMysqlConnection::AddServerStats(char const* pServer, ServerStats const& stats, char *pError, int ErrorSize) {
-	char aBuf[4096];
-	str_format(aBuf, sizeof(aBuf),
-		"INSERT INTO stats_server(server_name, red_score, blue_score)"
-		"VALUES (?, ?, ?) "
-		"ON DUPLICATE KEY UPDATE "
-		"red_score=?, blue_score=?");
-	if(PrepareStatement(aBuf, pError, ErrorSize))
-	{
-		return true;
-	}
-	BindString(1, pServer);
-	BindInt(2, stats.score_red);
-	BindInt(3, stats.score_blue);
-	BindInt(4, stats.score_red);
-	BindInt(5, stats.score_blue);
-	int NumUpdated;
-	if(ExecuteUpdate(&NumUpdated, pError, ErrorSize))
-	{
-		return true;
-	}
-	return false;
-}
-
-bool CMysqlConnection::GetServerStats(char const* pServer, ServerStats& stats, char *pError, int ErrorSize) {
-	char aBuf[4096];
-	str_format(aBuf, sizeof(aBuf),
-		"SELECT red_score, blue_score FROM stats_server WHERE server_name = ?");
-	if(PrepareStatement(aBuf, pError, ErrorSize))
-	{
-		return true;
-	}
-	BindString(1, pServer);
-	bool Last;
-	if(Step(&Last, pError, ErrorSize))
-	{
-		return true;
-	}
-	if(!Last)
-	{
-		stats.score_red = GetInt(1);
-		stats.score_blue = GetInt(2);
-		dbg_msg("mysql", "red: %d", stats.score_red);
-		dbg_msg("mysql", "blue: %d", stats.score_blue);
-	}
-
 	return false;
 }
 

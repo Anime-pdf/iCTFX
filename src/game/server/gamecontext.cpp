@@ -28,6 +28,8 @@
 #include "gamemodes/DDRace.h"
 #include "player.h"
 
+#include <regex>
+
 enum
 {
 	RESET,
@@ -1696,6 +1698,22 @@ void CGameContext::CensorMessage(char *pCensoredMessage, const char *pMessage, i
 	}
 }
 
+bool CGameContext::VoteXonX(int x)
+{
+	if(x > g_Config.m_SvMaxClients/2)
+		return false;
+	g_Config.m_SvSpectatorSlots = g_Config.m_SvMaxClients - x*2;
+	m_pController->DoWarmup(g_Config.m_SvWarTime);
+	char aBuf[128];
+
+	str_format(aBuf, sizeof(aBuf), "Upcoming %don%d! Please stay on spectator", x, x);
+	SendBroadcast(aBuf, -1);
+
+	str_format(aBuf, sizeof(aBuf), "The %don%d will start in %d seconds!", x, x, g_Config.m_SvWarTime);
+	SendChat(-1, CHAT_ALL, aBuf);
+	return true;
+}
+
 void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 {
 	if(m_TeeHistorianActive)
@@ -1787,28 +1805,33 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			if(Length >= 2 && str_startswith(pMsg->m_pMessage, "go"))
 			{
-				if(!g_Config.m_SvSaveServer) {
-					if(pPlayer->GetTeam() != TEAM_SPECTATORS)
-					{
-						char aBuf[32];
-						str_format(aBuf, sizeof(aBuf), "continue game");
-						char bBuf[32];
-						str_format(bBuf, sizeof(aBuf), "go");
-						StartVote(aBuf, bBuf, "continue", "continue");
-						pPlayer->m_Vote = 1;
-						pPlayer->m_VotePos = ++m_VotePos;
-						m_VoteUpdate = true;
-					}
+				if(pPlayer->GetTeam() != TEAM_SPECTATORS)
+				{
+					char aBuf[32];
+					str_format(aBuf, sizeof(aBuf), "continue game");
+					char bBuf[32];
+					str_format(bBuf, sizeof(aBuf), "go");
+					StartVote(aBuf, bBuf, "continue", "continue");
+					pPlayer->m_Vote = 1;
+					pPlayer->m_VotePos = ++m_VotePos;
+					m_VoteUpdate = true;
 				}
+			}
+
+			if(std::regex_match(pMsg->m_pMessage + 1, std::regex("(\\d{1,2})on\\1")))
+			{
+				int x = pMsg->m_pMessage[1] - '0';
+				if(isdigit(pMsg->m_pMessage[2]))
+					x=x*10+pMsg->m_pMessage[2] - '0';
+				if(VoteXonX(x))
+					return;
 			}
 
 			if(Length >= 4 && str_startswith(pMsg->m_pMessage, "stop"))
 			{
-				if(!g_Config.m_SvSaveServer) {
-					if(pPlayer->GetTeam() != TEAM_SPECTATORS)
-					{
-						ConStop(0, this);
-					}
+				if(pPlayer->GetTeam() != TEAM_SPECTATORS)
+				{
+					ConStop(0, this);
 				}
 			}
 
@@ -1822,7 +1845,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			else
 				Team = CHAT_ALL;
 
-			if(str_startswith(pMsg->m_pMessage + 1, "go") && !g_Config.m_SvSaveServer)
+			if(str_startswith(pMsg->m_pMessage + 1, "go"))
 			{
 				if(pPlayer->GetTeam() != TEAM_SPECTATORS)
 				{
@@ -1837,7 +1860,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				}
 			}
 
-			if(str_startswith(pMsg->m_pMessage + 1, "stop") && !g_Config.m_SvSaveServer)
+			if(str_startswith(pMsg->m_pMessage + 1, "stop"))
 			{
 				if(pPlayer->GetTeam() != TEAM_SPECTATORS)
 				{
@@ -1871,7 +1894,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					str_copy(aWhisperMsg, pMsg->m_pMessage + 10, 256);
 					Converse(pPlayer->GetCID(), aWhisperMsg);
 				}
-				else if(str_startswith(pMsg->m_pMessage + 2, "on") && !g_Config.m_SvSaveServer)
+				/*else if(str_startswith(pMsg->m_pMessage + 2, "on"))
 				{
 					if(pPlayer->GetTeam() != TEAM_SPECTATORS)
 					{
@@ -1887,7 +1910,7 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 						pPlayer->m_VotePos = ++m_VotePos;
 						m_VoteUpdate = true;
 					}
-				}
+				}*/
 				else
 				{
 					if(g_Config.m_SvSpamprotection && !str_startswith(pMsg->m_pMessage + 1, "timeout ") && pPlayer->m_LastCommands[0] && pPlayer->m_LastCommands[0] + Server()->TickSpeed() > Server()->Tick() && pPlayer->m_LastCommands[1] && pPlayer->m_LastCommands[1] + Server()->TickSpeed() > Server()->Tick() && pPlayer->m_LastCommands[2] && pPlayer->m_LastCommands[2] + Server()->TickSpeed() > Server()->Tick() && pPlayer->m_LastCommands[3] && pPlayer->m_LastCommands[3] + Server()->TickSpeed() > Server()->Tick())

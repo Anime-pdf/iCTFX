@@ -54,8 +54,6 @@ public:
 
 	virtual bool AddStats(char const* pPlayer, Stats const& stats, char *pError, int ErrorSize);
 	virtual bool GetStats(char const* pPlayer, Stats& stats, char *pError, int ErrorSize);
-	virtual bool AddServerStats(char const* pServer, ServerStats const& stats, char *pError, int ErrorSize);
-	virtual bool GetServerStats(char const* pServer, ServerStats& stats, char *pError, int ErrorSize);
 
 private:
 	// copy of config vars
@@ -144,9 +142,6 @@ bool CSqliteConnection::Connect(char *pError, int ErrorSize)
 	{
 		char aBuf[1024];
 		FormatCreateUsers(aBuf, sizeof(aBuf));
-		if(Execute(aBuf, pError, ErrorSize))
-			return true;
-		FormatCreateServer(aBuf, sizeof(aBuf));
 		if(Execute(aBuf, pError, ErrorSize))
 			return true;
 		m_Setup = false;
@@ -383,16 +378,6 @@ bool CSqliteConnection::AddStats(char const* pPlayer, Stats const& stats, char *
 
 
 bool CSqliteConnection::GetStats(char const* pPlayer, Stats& stats, char *pError, int ErrorSize) {
-	str_copy(pError, "not implemented", ErrorSize);
-	return true;
-}
-
-bool CSqliteConnection::AddServerStats(char const* pServer, ServerStats const& stats, char *pError, int ErrorSize) {
-	str_copy(pError, "not implemented", ErrorSize);
-	return true;
-}
-
-bool CSqliteConnection::GetServerStats(char const* pServer, ServerStats& stats, char *pError, int ErrorSize) {
 	str_copy(pError, "not implemented", ErrorSize);
 	return true;
 }

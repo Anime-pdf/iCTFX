@@ -19,11 +19,6 @@ struct Stats {
 	int wallshot_kills;
 };
 
-struct ServerStats {
-	int score_red;
-	int score_blue;
-};
-
 // can hold one PreparedStatement with Results
 class IDbConnection
 {
@@ -103,15 +98,12 @@ public:
 	// SQL statements, that can't be abstracted, has side effects to the result
 	virtual bool AddStats(char const* pPlayer, Stats const& stats, char *pError, int ErrorSize) = 0;
 	virtual bool GetStats(char const* pPlayer, Stats& stats, char *pError, int ErrorSize) = 0;
-	virtual bool AddServerStats(char const* pServer, ServerStats const& stats, char *pError, int ErrorSize) = 0;
-	virtual bool GetServerStats(char const* pServer, ServerStats& stats, char *pError, int ErrorSize) = 0;
 
 private:
 	char m_aPrefix[64];
 
 protected:
 	void FormatCreateUsers(char *aBuf, unsigned int BufferSize);
-	void FormatCreateServer(char *aBuf, unsigned int BufferSize);
 };
 
 int MysqlInit();

@@ -447,12 +447,6 @@ char *CStatboard::ReplaceCommata(char *pStr)
 
 void CStatboard::FormatStats()
 {
-	// server stats
-	CServerInfo CurrentServerInfo;
-	Client()->GetServerInfo(&CurrentServerInfo);
-	char aServerStats[1024];
-	str_format(aServerStats, sizeof(aServerStats), "Servername,Game-type,Map\n%s,%s,%s", ReplaceCommata(CurrentServerInfo.m_aName), CurrentServerInfo.m_aGameType, CurrentServerInfo.m_aMap);
-
 	// player stats
 
 	// sort players
@@ -534,7 +528,7 @@ void CStatboard::FormatStats()
 	}
 
 	char aStats[1024 * (VANILLA_MAX_CLIENTS + 1)];
-	str_format(aStats, sizeof(aStats), "%s\n\n%s", aServerStats, aPlayerStats);
+	str_format(aStats, sizeof(aStats), "%s", aPlayerStats);
 
 	unsigned int Len = str_length(aStats);
 	m_pCSVstr = (char *)malloc(Len);

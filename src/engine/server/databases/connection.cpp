@@ -11,7 +11,7 @@ void IDbConnection::FormatCreateUsers(char *aBuf, unsigned int BufferSize)
 			"`deaths` int not null default 0 check(`deaths` >= 0),"
 			"`touches` int not null default 0 check(`touches` >= 0),"
 			"`captures` int not null default 0 check(`captures` >= 0),"
-			"`fastest_capture` int not null default -1 check(`fastest_capture` >= -1),"
+			"`fastest_capture` int not null default -1 check(`fastest_capture` >= 0),"
 			"`suicides` int not null default 0 check(`suicides` >= 0),"
 			"`shots` int not null default 0 check(`shots` >= 0),"
 			"`wallshots` int not null default 0 check(`wallshots` >= 0),"
